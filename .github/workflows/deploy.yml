@@ -17,14 +17,14 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: false
-          fetch-depth: 0
+          fetch-depth: 0   # no submodules
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -33,21 +33,21 @@ jobs:
         working-directory: sorting-visualizer
         run: npm ci
 
-      - name: Build Next.js app for static export
+      - name: Build and export project
         working-directory: sorting-visualizer
         run: npm run build && npx next export
 
-      - name: Upload static site to GitHub Pages
+      - name: Upload production-ready files
         uses: actions/upload-pages-artifact@v3
         with:
           path: sorting-visualizer/out
 
   deploy:
+    runs-on: ubuntu-latest
+    needs: build
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
